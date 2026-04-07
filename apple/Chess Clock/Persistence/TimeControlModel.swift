@@ -17,13 +17,13 @@ final class TimeControlModel {
 
     init(name: String, control: TimeControl) {
         self.name = name
-        self.systemRaw = control.system.rawValue
+        self.systemRaw = control.mode.rawValue
         self.stagesData = try! JSONEncoder().encode(control.stages)
     }
 
     var control: TimeControl {
         TimeControl(
-            system: TimingMode(rawValue: systemRaw)!,
+            mode: TimingMode(rawValue: systemRaw)!,
             stages: try! JSONDecoder().decode(
                 [ClockStage].self,
                 from: stagesData

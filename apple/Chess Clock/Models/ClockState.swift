@@ -11,17 +11,23 @@ struct ClockState {
 
     var whiteRemaining: TimeInterval
     var blackRemaining: TimeInterval
+    
+    var whiteDeadline: Date?
+    var blackDeadline: Date?
 
     var whiteMoves = 0
     var blackMoves = 0
 
     var activePlayer: Player?
-    var turnStart: Date?
+    var losingPlayer: Player?
+    var turnStartedAt: Date?
     
-    var accumulatedTimeThisTurn: TimeInterval = 0
-
+    
     var stageIndexWhite = 0
     var stageIndexBlack = 0
 
     var isGameOver = false
+    
+    var flagDeadline: Date?
+
 }

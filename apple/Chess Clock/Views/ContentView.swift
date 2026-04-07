@@ -14,75 +14,104 @@ struct ContentView: View {
     @Environment(\.horizontalSizeClass) var size
     @StateObject var lifecycle = AppLifecycle()
     @StateObject var engine = ClockEngine(
-            control: TimeControl(
-                system: .fischer,
-                stages: [
-                    ClockStage(
-                        movesRequired: nil,
-                        baseTime: 300,
-                        increment: 3
-                    )
-                ]
-            )
+        control: TimeControl(
+            mode: .fischer,
+            stages: [
+                ClockStage(
+                    movesRequired: nil,
+                    baseTime: 300,
+                    increment: 5,
+                )
+            ]
         )
+    )
     
-    var rotateBoard: Bool {
-    #if os(iOS)
-        size == .compact
-    #else
-        false
-    #endif
-    }
-
-        var body: some View {
-
-            TimelineView(.periodic(from: .now, by: 0.1)) { _ in
-
-                VStack(spacing: 0) {
-
-                    PlayerClockView(
-                        player: .black,
-                        rotate: rotateBoard,
-                        time: engine.displayTime(for: .black),
-                        isActive: engine.state.activePlayer == .black
-                    ) {
-                        tap(.black)
-                    }
-
-                    Divider()
-
-                    PlayerClockView(
-                        player: .white,
-                        rotate: rotateBoard,
-                        time: engine.displayTime(for: .white),
-                        isActive: engine.state.activePlayer == .white
-                    ) {
-                        tap(.white)
-                    }
-                }
-            }.onChange(of: phase) { _, newPhase in
+    @State private var isTapLocked = false
+    @State private var pressedPlayer: Player?
+    
+    var body: some View {
+        GeometryReader { geo in
+            let isLandscape = geo.size.width > geo.size.height
+            
+            VStack(spacing: 0) {
                 
-                switch newPhase {
-                case .background:
-                    lifecycle.appMovedToBackground(engine: engine)
-
-                case .active:
-                    lifecycle.appReturned(engine: engine)
-
-                default:
-                    break
+                
+                Group {
+                    if isLandscape {
+                        HStack(spacing: 0) {
+                            playerView(.black, isLandscape: isLandscape)
+                            playerView(.white, isLandscape: isLandscape)
+                        }
+                    } else {
+                        VStack(spacing: 0) {
+                            playerView(.black, isLandscape: isLandscape)
+                            playerView(.white, isLandscape: isLandscape)
+                        }
+                    }
                 }
+                .animation(.easeInOut(duration: 0.25), value: isLandscape)
+                
             }
         }
-
-        func tap(_ player: Player) {
-
-            if engine.state.activePlayer == nil {
-                engine.start(player: player)
-            } else if engine.state.activePlayer == player {
-                engine.switchTurn()
+        .onChange(of: phase) { _, newPhase in
+            switch newPhase {
+            case .background:
+                lifecycle.appMovedToBackground(engine: engine)
+            case .active:
+                lifecycle.appReturned(engine: engine)
+            default:
+                break
             }
         }
+    }
+    
+    func tap(_ player: Player) {
+        
+        guard !isTapLocked else { return }
+        
+        isTapLocked = true
+        DispatchQueue.main.asyncAfter(deadline: .now() + 0.2) {
+            isTapLocked = false
+        }
+        
+        if engine.state.activePlayer == nil {
+            let opponent: Player = (player == .white) ? .black : .white
+            engine.start(player: opponent)
+        } else if engine.state.activePlayer == player {
+            engine.switchTurn()
+        }
+        
+        HapticsManager.tap()
+    }
+    
+    func rotateFor(_ player: Player, isLandscape: Bool) -> Bool {
+        if isLandscape {
+            return false
+        } else {
+            return player == .black
+        }
+    }
+    
+    
+    @ViewBuilder
+    func playerView(_ player: Player, isLandscape: Bool) -> some View {        
+        PlayerClockView(
+            engine: engine,
+            player: player,
+            rotate: rotateFor(player, isLandscape: isLandscape)
+        ) {
+            tap(player)
+        }
+        .contentShape(Rectangle())
+        .onTapGesture {
+            pressedPlayer = player
+            tap(player)
+            
+            DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
+                pressedPlayer = nil
+            }
+        }
+    }
 }
 
 #Preview {

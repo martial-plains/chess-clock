@@ -7,6 +7,6 @@
 
 struct TimeControl: Codable {
 
-    var system: TimingMode
+    var mode: TimingMode
     var stages: [ClockStage]
 }
