@@ -27,8 +27,10 @@ struct Chess_ClockApp: App {
         WindowGroup {
             ContentView().ignoresSafeArea().frame(minWidth: 450, minHeight: 350)
         }
-        .windowStyle(HiddenTitleBarWindowStyle())
         .modelContainer(sharedModelContainer)
+#if os(macOS)
+        .windowStyle(HiddenTitleBarWindowStyle())
+#endif
         
 #if os(macOS)
         Settings {
