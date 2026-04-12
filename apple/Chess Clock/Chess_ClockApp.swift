@@ -10,24 +10,24 @@ import SwiftData
 
 @main
 struct Chess_ClockApp: App {
-    var sharedModelContainer: ModelContainer = {
-        let schema = Schema([
-            TimeControlModel.self,
-        ])
-        let modelConfiguration = ModelConfiguration(schema: schema, isStoredInMemoryOnly: false)
+    let container: ModelContainer
+    
+    init() {
+        let schema = Schema([TimeControlModel.self])
+        let config = ModelConfiguration(schema: schema)
         
-        do {
-            return try ModelContainer(for: schema, configurations: [modelConfiguration])
-        } catch {
-            fatalError("Could not create ModelContainer: \(error)")
-        }
-    }()
+        self.container = try! ModelContainer(for: schema, configurations: config)
+        let context = container.mainContext
+        DatabaseSeeder.seedIfNeeded(context: context)
+    }
     
     var body: some Scene {
         WindowGroup {
-            ContentView().ignoresSafeArea().frame(minWidth: 450, minHeight: 350)
+            ContentView()
+                .ignoresSafeArea()
+                .frame(minWidth: 450, minHeight: 350)
         }
-        .modelContainer(sharedModelContainer)
+        .modelContainer(container)
 #if os(macOS)
         .windowStyle(HiddenTitleBarWindowStyle())
 #endif
@@ -36,6 +36,7 @@ struct Chess_ClockApp: App {
         Settings {
             SettingsView()
         }
+        .modelContainer(container)
 #endif
     }
 }

@@ -7,17 +7,60 @@
 
 import SwiftUI
 
+
 struct SettingsView: View {
+    @Environment(\.dismiss) private var dismiss
+    @State private var selectedTab: SettingsTab? = .presets
+    
     var body: some View {
-        TabView {
-            Tab("General", systemImage: "gear") {
-                GeneralSettingsView()
-            }
-            Tab("Advanced", systemImage: "star") {
-//                AdvancedSettingsView()
+        NavigationSplitView {
+            sidebar
+        } detail: {
+            detail
+        }
+        .navigationSplitViewStyle(.automatic)
+#if os(iOS)
+        .toolbar {
+            ToolbarItem(placement: .topBarLeading) {
+                Button {
+                    dismiss()
+                } label: {
+                    Image(systemName: "xmark")
+                }
             }
         }
-        .scenePadding()
-        .frame(maxWidth: 350, minHeight: 100)
+#endif
     }
+        
+    private var sidebar: some View {
+        List(selection: $selectedTab) {
+            Section("Settings") {
+                Label("Presets", systemImage: "clock.arrow.circlepath")
+                    .tag(SettingsTab.presets)
+            }
+        }
+        .navigationTitle("Settings")
+        .listStyle(.sidebar)
+    }
+    
+    // MARK: - Detail
+    
+    @ViewBuilder
+    private var detail: some View {
+        switch selectedTab {
+        case .presets:
+            PresetsSettingsView()
+            
+        case .none:
+            ContentUnavailableView(
+                "Select a category",
+                systemImage: "gearshape"
+            )
+        }
+    }
+}
+
+
+enum SettingsTab: Hashable {
+    case presets
 }

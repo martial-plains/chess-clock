@@ -8,7 +8,6 @@
 import Foundation
 
 struct ClockState {
-
     var whiteRemaining: TimeInterval
     var blackRemaining: TimeInterval
     
@@ -22,12 +21,8 @@ struct ClockState {
     var losingPlayer: Player?
     var turnStartedAt: Date?
     
-    
     var stageIndexWhite = 0
     var stageIndexBlack = 0
 
     var isGameOver = false
-    
-    var flagDeadline: Date?
-
 }

@@ -10,18 +10,15 @@ import UIKit
 #endif
 
 enum HapticsManager {
-
     static func flagFall() {
 #if os(iOS)
-        UINotificationFeedbackGenerator()
-            .notificationOccurred(.error)
+        UINotificationFeedbackGenerator().notificationOccurred(.error)
 #endif
     }
 
     static func tap() {
 #if os(iOS)
-        UIImpactFeedbackGenerator(style: .medium)
-            .impactOccurred()
+        UIImpactFeedbackGenerator(style: .medium).impactOccurred()
 #endif
     }
 }

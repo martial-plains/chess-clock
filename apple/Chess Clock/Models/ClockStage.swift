@@ -8,9 +8,7 @@
 import Foundation
 
 struct ClockStage: Codable {
-
     var movesRequired: Int?
     var baseTime: TimeInterval
     var increment: TimeInterval
-
 }

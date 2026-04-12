@@ -12,27 +12,13 @@ import Combine
 final class ClockEngine: ObservableObject {
     
     @Published private(set) var state: ClockState
-    
     private var timeoutTask: Task<Void, Never>?
-    
-    let control: TimeControl
+    private(set) var control: TimeControl
     
     init(control: TimeControl) {
         self.control = control
-        
-        precondition(!control.stages.isEmpty,
-                     "TimeControl must contain at least one stage")
-        
-        let start = control.stages[0]
-        
-        state = ClockState(
-            whiteRemaining: start.baseTime,
-            blackRemaining: start.baseTime,
-            whiteDeadline: nil,
-            blackDeadline: nil
-        )
+        self.state = Self.makeInitialState(for: control)
     }
-    
     
     func start(player: Player) {
         guard !state.isGameOver else { return }
@@ -115,7 +101,6 @@ final class ClockEngine: ObservableObject {
     }
     
     private func registerMove(for player: Player) {
-        
         if player == .white {
             state.whiteMoves += 1
             advanceStageIfNeeded(player)
@@ -147,11 +132,7 @@ final class ClockEngine: ObservableObject {
     }
     
     func displayTime(for player: Player) -> TimeInterval {
-        
-        let deadline =
-        player == .white
-        ? state.whiteDeadline
-        : state.blackDeadline
+        let deadline = player == .white ? state.whiteDeadline : state.blackDeadline
         
         if let deadline {
             return max(0, deadline.timeIntervalSinceNow)
@@ -161,27 +142,8 @@ final class ClockEngine: ObservableObject {
     }
     
     private func currentStage(for player: Player) -> ClockStage {
-        
-        let index =
-        player == .white
-        ? state.stageIndexWhite
-        : state.stageIndexBlack
-        
+        let index = player == .white ? state.stageIndexWhite : state.stageIndexBlack
         return control.stages[index]
-    }
-    
-    private func subtract(_ time: TimeInterval,
-                          from player: Player) {
-        
-        switch player {
-        case .white:
-            state.whiteRemaining -= time
-            if state.whiteRemaining <= 0 { flagFall() }
-            
-        case .black:
-            state.blackRemaining -= time
-            if state.blackRemaining <= 0 { flagFall() }
-        }
     }
     
     private func addIncrement(to player: Player) {
@@ -198,18 +160,7 @@ final class ClockEngine: ObservableObject {
         }
     }
     
-    private func addTime(_ time: TimeInterval,
-                         to player: Player) {
-        
-        if player == .white {
-            state.whiteRemaining += time
-        } else {
-            state.blackRemaining += time
-        }
-    }
-    
     private func flagFall() {
-        
         guard !state.isGameOver else { return }
         
         state.isGameOver = true
@@ -256,5 +207,15 @@ final class ClockEngine: ObservableObject {
         if player == .white { state.whiteRemaining += refund }
         else { state.blackRemaining += refund }
     }
+    
+    private static func makeInitialState(for control: TimeControl) -> ClockState {
+        precondition(!control.stages.isEmpty, "TimeControl must contain at least one stage")
+        let start = control.stages[0]
+        return ClockState(
+            whiteRemaining: start.baseTime,
+            blackRemaining: start.baseTime,
+            whiteDeadline: nil,
+            blackDeadline: nil
+        )
+    }
 }
-
