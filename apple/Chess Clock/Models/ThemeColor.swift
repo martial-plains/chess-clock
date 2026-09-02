@@ -7,7 +7,7 @@
 
 import SwiftUI
 
-enum ThemeColor: String, CaseIterable, Identifiable {
+enum ThemeColor: String, CaseIterable, Identifiable, Codable {
     case green = "Green"
     case blue = "Blue"
     case orange = "Orange"

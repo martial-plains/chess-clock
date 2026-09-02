@@ -5,6 +5,7 @@
 //  Created by Allister Isaiah Harvey on 2026.03.31.
 //
 
+import SwiftData
 import SwiftUI
 
 struct PlayerClockView: View {
@@ -14,6 +15,12 @@ struct PlayerClockView: View {
   let player: Player
   let rotate: Bool
   let action: () -> Void
+
+  @Query private var settingsArray: [AppSettings]
+
+  private var activeThemeColor: Color? {
+    settingsArray.first?.appThemeColor.color
+  }
 
   var body: some View {
 
@@ -49,7 +56,7 @@ struct PlayerClockView: View {
             ? .degrees(180)
             : .zero
         )
-        .background(lost ? Color.red.opacity(0.8) : (isActive ? .green : .black))
+        .background(lost ? Color.red.opacity(0.8) : (isActive ? activeThemeColor : .black))
         .foregroundColor(.white)
       }
       .buttonStyle(.plain)

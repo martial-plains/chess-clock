@@ -6,9 +6,10 @@
 //
 
 import SwiftUI
+import SwiftData
 
 struct SettingsView: View {
-  @Environment(\.dismiss) private var dismiss
+    @Environment(\.dismiss) private var dismiss
 
   var body: some View {
     NavigationStack {
@@ -17,7 +18,7 @@ struct SettingsView: View {
           TimeControlsSettingsView()
         }
         Tab("Preferences", systemImage: "gearshape") {
-          PreferencesView()
+            PreferencesView()
         }
       }
       .navigationTitle("Settings")

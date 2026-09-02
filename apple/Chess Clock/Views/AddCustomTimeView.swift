@@ -162,7 +162,7 @@ struct AddCustomTimeView: View {
               addStage()
             } label: {
               Label("Add Stage", systemImage: "plus")
-                .foregroundColor(.green)
+                .foregroundColor(.accentColor)
             }
           }
         }

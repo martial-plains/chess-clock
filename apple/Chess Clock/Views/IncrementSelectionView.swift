@@ -53,11 +53,11 @@ struct IncrementSelectionView: View {
                 ForEach(IncrementOption.allCases) { option in
                     HStack {
                         Text(option.rawValue)
-                            .foregroundColor(selectedOption == option ? .green : .primary)
+                            .foregroundColor(selectedOption == option ? .accentColor : .primary)
                         Spacer()
                         if selectedOption == option {
                             Image(systemName: "checkmark")
-                                .foregroundColor(.green)
+                                .foregroundColor(.accentColor)
                         }
                     }
                     .contentShape(Rectangle())

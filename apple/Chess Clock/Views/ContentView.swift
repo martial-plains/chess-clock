@@ -35,6 +35,12 @@ struct ContentView: View {
   @AppStorage("activePresetID") private var activePresetID: String = "standard_1 min"
   @Query private var customPresets: [TimeControlModel]
 
+  @Query private var settingsArray: [AppSettings]
+
+  private var currentSettings: AppSettings? {
+    settingsArray.first
+  }
+
   var body: some View {
     GeometryReader { geo in
       let isLandscape = geo.size.width > geo.size.height
@@ -61,6 +67,8 @@ struct ContentView: View {
         value: isLandscape
       )
     }
+    .statusBarHidden(currentSettings?.isStatusBarHidden ?? false)
+    .tint(currentSettings?.appThemeColor.color)
     .sheet(isPresented: $showingSettings) {
       SettingsView()
     }
@@ -74,9 +82,10 @@ struct ContentView: View {
         HapticsManager.tap()
       }
     } message: {
-        Text("Are you sure you want to reset the clock?")
+      Text("Are you sure you want to reset the clock?")
     }
     .onAppear {
+      ensureSettingsExist()
       applyActivePreset()
     }
     .onChange(of: activePresetID) { _, _ in
@@ -91,6 +100,14 @@ struct ContentView: View {
       default:
         break
       }
+    }
+  }
+
+  private func ensureSettingsExist() {
+    if settingsArray.isEmpty {
+      let defaultSettings = AppSettings()
+      modelContext.insert(defaultSettings)
+      try? modelContext.save()
     }
   }
 
@@ -147,7 +164,7 @@ struct ContentView: View {
         controlButton(
           systemName: "arrow.counterclockwise",
           action: {
-              showingResetConfirmation = true
+            showingResetConfirmation = true
           }
         )
         .transition(.scale.combined(with: .opacity))

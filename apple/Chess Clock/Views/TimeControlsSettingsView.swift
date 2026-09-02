@@ -15,6 +15,12 @@ struct TimeControlsSettingsView: View {
   @AppStorage("activePresetID") private var activePresetID: String = "standard_1 min"
   @State private var showingAddCustomTime = false
 
+  @Query private var settingsArray: [AppSettings]
+
+  private var currentSettings: AppSettings? {
+    settingsArray.first
+  }
+
   var body: some View {
     NavigationStack {
       Form {
@@ -67,7 +73,7 @@ struct TimeControlsSettingsView: View {
       .sheet(isPresented: $showingAddCustomTime) {
         AddCustomTimeView()
       }
-    }
+    }.tint(currentSettings?.appThemeColor.color)
   }
 
   @ViewBuilder
@@ -76,11 +82,11 @@ struct TimeControlsSettingsView: View {
 
     HStack {
       Text(preset.name)
-        .foregroundColor(isSelected ? .green : .primary)
+        .foregroundColor(isSelected ? .accentColor : .primary)
       Spacer()
       if isSelected {
         Image(systemName: "checkmark")
-          .foregroundColor(.green)
+          .foregroundColor(.accentColor)
       }
     }
     .contentShape(Rectangle())
