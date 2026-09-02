@@ -141,7 +141,6 @@ struct ContentView: View {
     HapticsManager.tap()
   }
 
-  // MARK: - Controls
   private var controlView: some View {
     HStack(spacing: 12) {
       if !isRunning {
@@ -196,8 +195,6 @@ struct ContentView: View {
     engine.reset()
     HapticsManager.tap()
   }
-
-  // MARK: - Player
 
   func tap(_ player: Player) {
     guard !isTapLocked, !engine.state.isPaused else { return }

@@ -33,7 +33,6 @@ struct TimeControlsSettingsView: View {
           }
         }
 
-        // Custom Presets Section
         if !savedPresets.isEmpty {
           Section("Custom Presets") {
             ForEach(savedPresets) { model in
@@ -44,7 +43,6 @@ struct TimeControlsSettingsView: View {
           }
         }
 
-        // Standard Presets Section
         Section("Presets") {
           ForEach(Preset.defaults) { preset in
             presetRow(for: preset)

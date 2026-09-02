@@ -23,7 +23,6 @@ struct StageEditView: View {
     var body: some View {
         Form {
             Section {
-                // Time Row
                 HStack {
                     Text("Time")
                     Spacer()
@@ -63,7 +62,6 @@ struct StageEditView: View {
                     .onChange(of: seconds) { _, _ in updateBaseTime() }
                 }
 
-                // Moves Row
                 HStack {
                     Text("Moves")
                     Spacer()
@@ -80,7 +78,6 @@ struct StageEditView: View {
                         }
                 }
 
-                // Increment Navigation Row
                 NavigationLink {
                     IncrementSelectionView(timingMode: $timingMode, increment: $stage.increment)
                 } label: {

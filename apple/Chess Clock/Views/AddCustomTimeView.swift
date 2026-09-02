@@ -17,7 +17,6 @@ struct AddCustomTimeView: View {
   @State private var selectedPlayerTab: Int = 0
   @State private var selectedTimingMode: TimingMode = .fischer
 
-  // Time Component Pickers State
   @State private var selectedMinutes: Int = 5
   @State private var selectedSeconds: Int = 0
   @State private var incrementMinutes: Int = 0
@@ -26,7 +25,6 @@ struct AddCustomTimeView: View {
   @State private var showBaseTimePicker: Bool = false
   @State private var showIncrementPicker: Bool = false
 
-  // Advanced Mode Stage State
   @State private var playerOneStages: [ClockStage] = [
     ClockStage(movesRequired: 40, baseTime: 7200, increment: 0),
     ClockStage(movesRequired: nil, baseTime: 3600, increment: 0),
@@ -45,7 +43,6 @@ struct AddCustomTimeView: View {
 
         if !isAdvancedMode {
           Section {
-            // Base Time Row
             HStack {
               Text("Time")
               Spacer()
@@ -83,7 +80,6 @@ struct AddCustomTimeView: View {
               .frame(height: 150)
             }
 
-            // Increment Row
             HStack {
               Text("Increment")
               Spacer()

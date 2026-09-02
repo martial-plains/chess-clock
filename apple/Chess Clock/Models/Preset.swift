@@ -38,7 +38,6 @@ enum Preset: Hashable, Identifiable, Codable {
         }
     }
 
-    // Built-in Default Presets
     static let defaults: [Preset] = [
         .standard(name: "1 min", control: TimeControl(mode: .simple, stages: [ClockStage(movesRequired: nil, baseTime: 60, increment: 0)])),
         .standard(name: "1 min | 1 sec", control: TimeControl(mode: .fischer, stages: [ClockStage(movesRequired: nil, baseTime: 60, increment: 1)])),

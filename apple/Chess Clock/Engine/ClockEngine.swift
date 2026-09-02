@@ -243,7 +243,6 @@ final class ClockEngine: ObservableObject {
     } else if player == .black, let deadline = state.blackDeadline {
       state.blackDeadline = deadline.addingTimeInterval(inc)
     } else {
-      // Pre-start: add to remaining
       if player == .white { state.whiteRemaining += inc } else { state.blackRemaining += inc }
     }
   }
