@@ -222,11 +222,16 @@ struct ContentView: View {
       isTapLocked = false
     }
 
+    let soundEnabled = currentSettings?.isSoundEnabled ?? true
+
     if engine.state.activePlayer == nil {
       let opponent: Player = (player == .white) ? .black : .white
       engine.start(player: opponent)
+      if soundEnabled {
+        SoundManager.shared.playMove()
+      }
     } else if engine.state.activePlayer == player {
-      engine.switchTurn()
+      engine.switchTurn(isSoundEnabled: soundEnabled)
     }
 
     HapticsManager.tap()

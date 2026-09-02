@@ -103,22 +103,22 @@ final class ClockEngine: ObservableObject {
     timeoutTask?.cancel()
 
     if let newControl {
-        self.control = newControl
+      self.control = newControl
     }
 
     let start = control.stages[0]
 
     state = ClockState(
-        whiteRemaining: start.baseTime,
-        blackRemaining: start.baseTime,
-        whiteDeadline: nil,
-        blackDeadline: nil
+      whiteRemaining: start.baseTime,
+      blackRemaining: start.baseTime,
+      whiteDeadline: nil,
+      blackDeadline: nil
     )
-}
+  }
 
-  func switchTurn() {
-      guard !state.isGameOver,
-            !state.isPaused,
+  func switchTurn(isSoundEnabled: Bool = true) {
+    guard !state.isGameOver,
+      !state.isPaused,
       let player = state.activePlayer
     else { return }
 
@@ -145,16 +145,20 @@ final class ClockEngine: ObservableObject {
       break
     }
 
+    if isSoundEnabled {
+      SoundManager.shared.playMove()
+    }
+
     let opponent = player.opponent
     let opponentRemaining = displayTime(for: opponent)
     let deadline = startDeadline(for: opponent, remaining: opponentRemaining)
 
     if opponent == .white {
-        state.whiteDeadline = deadline
-        state.blackDeadline = nil
+      state.whiteDeadline = deadline
+      state.blackDeadline = nil
     } else {
-        state.blackDeadline = deadline
-        state.whiteDeadline = nil
+      state.blackDeadline = deadline
+      state.whiteDeadline = nil
     }
 
     state.activePlayer = opponent

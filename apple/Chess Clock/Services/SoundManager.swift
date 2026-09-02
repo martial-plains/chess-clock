@@ -6,23 +6,47 @@
 //
 
 import AVFoundation
+import AudioToolbox
 
 final class SoundManager {
 
-    static let shared = SoundManager()
+  static let shared = SoundManager()
 
-    private var player: AVAudioPlayer?
+  private var flagFallSoundID: SystemSoundID = 0
+  private var moveSoundID: SystemSoundID = 1104
 
-    func playFlagFall() {
+  init() {
+    configureAudioSession()
+    registerSoundAssets()
+  }
 
-        guard
-            let url = Bundle.main.url(
-                forResource: "flag",
-                withExtension: "wav")
-        else { return }
+  private func configureAudioSession() {
+    do {
+      let session = AVAudioSession.sharedInstance()
+      try session.setCategory(.playback, mode: .default, options: [])
+      try session.setActive(true)
+    } catch {
+      print("Failed to force background playback session: \(error)")
+    }
+  }
 
-        player = try? AVAudioPlayer(contentsOf: url)
-        player?.play()
+  private func registerSoundAssets() {
+    if let flagURL = Bundle.main.url(forResource: "flag", withExtension: "wav") {
+      AudioServicesCreateSystemSoundID(flagURL as CFURL, &flagFallSoundID)
     }
 
+    if let moveURL = Bundle.main.url(forResource: "move", withExtension: "wav") {
+      AudioServicesCreateSystemSoundID(moveURL as CFURL, &moveSoundID)
+    }
+  }
+
+  func playFlagFall() {
+    if flagFallSoundID != 0 {
+      AudioServicesPlaySystemSound(flagFallSoundID)
+    }
+  }
+
+  func playMove() {
+    AudioServicesPlaySystemSound(moveSoundID)
+  }
 }
