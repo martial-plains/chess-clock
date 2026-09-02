@@ -8,16 +8,28 @@
 import SwiftUI
 
 struct SettingsView: View {
-    var body: some View {
-        TabView {
-            Tab("General", systemImage: "gear") {
-                GeneralSettingsView()
-            }
-            Tab("Advanced", systemImage: "star") {
-//                AdvancedSettingsView()
-            }
+  @Environment(\.dismiss) private var dismiss
+
+  var body: some View {
+    NavigationStack {
+      TabView {
+        Tab("Time Controls", systemImage: "timer") {
+          TimeControlsSettingsView()
         }
-        .scenePadding()
-        .frame(maxWidth: 350, minHeight: 100)
+        Tab("Preferences", systemImage: "gearshape") {
+          PreferencesView()
+        }
+      }
+      .navigationTitle("Settings")
+      .navigationBarTitleDisplayMode(.inline)
+      .toolbar {
+        ToolbarItem(placement: .confirmationAction) {
+          Button("Done") {
+            dismiss()
+          }
+          .bold()
+        }
+      }
     }
+  }
 }

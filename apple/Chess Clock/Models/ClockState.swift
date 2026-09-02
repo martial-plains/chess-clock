@@ -11,7 +11,7 @@ struct ClockState {
 
     var whiteRemaining: TimeInterval
     var blackRemaining: TimeInterval
-    
+
     var whiteDeadline: Date?
     var blackDeadline: Date?
 
@@ -19,15 +19,17 @@ struct ClockState {
     var blackMoves = 0
 
     var activePlayer: Player?
+    var pausedPlayer: Player?
+
     var losingPlayer: Player?
     var turnStartedAt: Date?
-    
-    
+
     var stageIndexWhite = 0
     var stageIndexBlack = 0
 
+    var isPaused = false
     var isGameOver = false
-    
+
     var flagDeadline: Date?
 
 }
