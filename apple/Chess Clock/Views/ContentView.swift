@@ -41,6 +41,10 @@ struct ContentView: View {
     settingsArray.first
   }
 
+  private var isLowTimeHapticsEnabled: Bool {
+    currentSettings?.isLowTimeHapticsEnabled ?? true
+  }
+
   var body: some View {
     GeometryReader { geo in
       let isLandscape = geo.size.width > geo.size.height
@@ -126,6 +130,10 @@ struct ContentView: View {
     engine.state.activePlayer != nil
   }
 
+  private var isHapticsEnabled: Bool {
+    currentSettings?.isHapticsEnabled ?? true
+  }
+
   private var middleButtonIcon: String {
     if engine.state.isGameOver {
       return "pause.fill"
@@ -148,14 +156,14 @@ struct ContentView: View {
     }
 
     if engine.state.isPaused {
-      engine.resume()
+      engine.resume(isLowTimeHapticsEnabled: isLowTimeHapticsEnabled)
     } else if engine.state.activePlayer != nil {
       engine.pause()
     } else {
-      engine.start(player: .white)
+      engine.start(player: .white, isLowTimeHapticsEnabled: isLowTimeHapticsEnabled)
     }
 
-    HapticsManager.tap()
+    HapticsManager.tap(isEnabled: isHapticsEnabled)
   }
 
   private var controlView: some View {
@@ -200,17 +208,17 @@ struct ContentView: View {
 
   private func togglePause() {
     if isPaused {
-      engine.resume()
+      engine.resume(isLowTimeHapticsEnabled: isLowTimeHapticsEnabled)
     } else {
       engine.pause()
     }
 
-    HapticsManager.tap()
+    HapticsManager.tap(isEnabled: isHapticsEnabled)
   }
 
   private func restart() {
     engine.reset()
-    HapticsManager.tap()
+    HapticsManager.tap(isEnabled: isHapticsEnabled)
   }
 
   func tap(_ player: Player) {
@@ -226,15 +234,16 @@ struct ContentView: View {
 
     if engine.state.activePlayer == nil {
       let opponent: Player = (player == .white) ? .black : .white
-      engine.start(player: opponent)
+      engine.start(player: opponent, isLowTimeHapticsEnabled: isLowTimeHapticsEnabled)
       if soundEnabled {
         SoundManager.shared.playMove()
       }
     } else if engine.state.activePlayer == player {
-      engine.switchTurn(isSoundEnabled: soundEnabled)
+      engine.switchTurn(
+        isSoundEnabled: soundEnabled, isLowTimeHapticsEnabled: isLowTimeHapticsEnabled)
     }
 
-    HapticsManager.tap()
+    HapticsManager.tap(isEnabled: isHapticsEnabled)
   }
 
   func rotateFor(_ player: Player, isLandscape: Bool) -> Bool {

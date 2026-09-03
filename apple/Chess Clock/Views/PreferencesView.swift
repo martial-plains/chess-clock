@@ -43,8 +43,8 @@ struct PreferencesView: View {
           }
           .contentShape(Rectangle())
           .onTapGesture {
-              currentSettings.appThemeColor = theme
-              try? modelContext.save()
+            currentSettings.appThemeColor = theme
+            try? modelContext.save()
           }
         }
       }
@@ -72,6 +72,30 @@ struct PreferencesView: View {
           )
         ) {
           Label("Sound", systemImage: "speaker.wave.2.fill")
+        }
+
+        Toggle(
+          isOn: Binding(
+            get: { currentSettings.isHapticsEnabled },
+            set: {
+              currentSettings.isHapticsEnabled = $0
+              try? modelContext.save()
+            }
+          )
+        ) {
+          Label("Haptics", systemImage: "iphone.radiowaves.left.and.right")
+        }
+
+        Toggle(
+          isOn: Binding(
+            get: { currentSettings.isLowTimeHapticsEnabled },
+            set: {
+              currentSettings.isLowTimeHapticsEnabled = $0
+              try? modelContext.save()
+            }
+          )
+        ) {
+          Label("Vibrate on Low Time", systemImage: "timer.degree.180")
         }
       }
     }.tint(currentSettings.appThemeColor.color)

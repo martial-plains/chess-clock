@@ -14,6 +14,8 @@ final class ClockEngine: ObservableObject {
   @Published private(set) var state: ClockState
 
   private var timeoutTask: Task<Void, Never>?
+  private var warningTask: Task<Void, Never>?
+  private var lowTimeWarningTriggered = false
 
   var control: TimeControl
 
@@ -34,11 +36,12 @@ final class ClockEngine: ObservableObject {
     )
   }
 
-  func start(player: Player) {
+  func start(player: Player, isLowTimeHapticsEnabled: Bool = true) {
     guard !state.isGameOver else { return }
 
     state.activePlayer = player
     state.turnStartedAt = Date()
+    lowTimeWarningTriggered = false
 
     let remaining = displayTime(for: player)
     let deadline = startDeadline(for: player, remaining: remaining)
@@ -49,13 +52,14 @@ final class ClockEngine: ObservableObject {
       state.blackDeadline = deadline
     }
 
-    scheduleTimeout(for: player)
+    scheduleTimeout(for: player, isLowTimeHapticsEnabled: isLowTimeHapticsEnabled)
   }
 
   func pause() {
     guard let player = state.activePlayer else { return }
 
     timeoutTask?.cancel()
+    warningTask?.cancel()
 
     let remaining = displayTime(for: player)
 
@@ -72,7 +76,7 @@ final class ClockEngine: ObservableObject {
     state.isPaused = true
   }
 
-  func resume() {
+  func resume(isLowTimeHapticsEnabled: Bool = true) {
     guard state.isPaused,
       let player = state.pausedPlayer,
       !state.isGameOver
@@ -96,11 +100,13 @@ final class ClockEngine: ObservableObject {
       state.blackDeadline = deadline
     }
 
-    scheduleTimeout(for: player)
+    scheduleTimeout(for: player, isLowTimeHapticsEnabled: isLowTimeHapticsEnabled)
   }
 
   func reset(with newControl: TimeControl? = nil) {
-    timeoutTask?.cancel()
+      timeoutTask?.cancel()
+      warningTask?.cancel()
+      lowTimeWarningTriggered = false
 
     if let newControl {
       self.control = newControl
@@ -116,13 +122,15 @@ final class ClockEngine: ObservableObject {
     )
   }
 
-  func switchTurn(isSoundEnabled: Bool = true) {
+  func switchTurn(isSoundEnabled: Bool = true, isLowTimeHapticsEnabled: Bool = true) {
     guard !state.isGameOver,
       !state.isPaused,
       let player = state.activePlayer
     else { return }
 
     timeoutTask?.cancel()
+    warningTask?.cancel()
+    lowTimeWarningTriggered = false
 
     let remaining = displayTime(for: player)
 
@@ -164,11 +172,10 @@ final class ClockEngine: ObservableObject {
     state.activePlayer = opponent
     state.turnStartedAt = Date()
 
-    scheduleTimeout(for: opponent)
+    scheduleTimeout(for: opponent, isLowTimeHapticsEnabled: isLowTimeHapticsEnabled)
   }
 
   private func registerMove(for player: Player) {
-
     if player == .white {
       state.whiteMoves += 1
       advanceStageIfNeeded(player)
@@ -200,7 +207,6 @@ final class ClockEngine: ObservableObject {
   }
 
   func displayTime(for player: Player) -> TimeInterval {
-
     let deadline =
       player == .white
       ? state.whiteDeadline
@@ -214,7 +220,6 @@ final class ClockEngine: ObservableObject {
   }
 
   private func currentStage(for player: Player) -> ClockStage {
-
     let index =
       player == .white
       ? state.stageIndexWhite
@@ -263,8 +268,7 @@ final class ClockEngine: ObservableObject {
     }
   }
 
-  private func flagFall() {
-
+  private func flagFall(isHapticsEnabled: Bool = true) {
     guard !state.isGameOver else { return }
 
     state.isGameOver = true
@@ -272,24 +276,43 @@ final class ClockEngine: ObservableObject {
     state.activePlayer = nil
 
     timeoutTask?.cancel()
+    warningTask?.cancel()
 
     SoundManager.shared.playFlagFall()
-    HapticsManager.flagFall()
+    HapticsManager.flagFall(isEnabled: isHapticsEnabled)
   }
 
-  private func scheduleTimeout(for player: Player) {
+  private func scheduleTimeout(
+      for player: Player, isHapticsEnabled: Bool = true, isLowTimeHapticsEnabled: Bool = true,
+  ) {
     timeoutTask?.cancel()
+    warningTask?.cancel()
 
     let remaining = displayTime(for: player)
     guard remaining > 0 else {
-      flagFall()
+      flagFall(isHapticsEnabled: isHapticsEnabled)
       return
+    }
+
+    if remaining > 10 {
+      let warningDelay = remaining - 10
+      warningTask = Task { @MainActor in
+        try? await Task.sleep(nanoseconds: UInt64(warningDelay * 1_000_000_000))
+        guard !Task.isCancelled else { return }
+        if !self.lowTimeWarningTriggered {
+          self.lowTimeWarningTriggered = true
+          HapticsManager.lowTimeWarning(isEnabled: isHapticsEnabled && isLowTimeHapticsEnabled)
+        }
+      }
+    } else if !lowTimeWarningTriggered {
+      lowTimeWarningTriggered = true
+      HapticsManager.lowTimeWarning(isEnabled: isHapticsEnabled && isLowTimeHapticsEnabled)
     }
 
     timeoutTask = Task { @MainActor in
       try? await Task.sleep(nanoseconds: UInt64(remaining * 1_000_000_000))
       guard !Task.isCancelled else { return }
-      self.flagFall()
+      self.flagFall(isHapticsEnabled: isHapticsEnabled)
     }
   }
 

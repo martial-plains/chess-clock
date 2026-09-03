@@ -11,21 +11,24 @@ import SwiftData
 final class AppSettings {
     @Attribute(.unique) var id: String
     var isStatusBarHidden: Bool
-    var isDarkModeEnabled: Bool
     var isSoundEnabled: Bool
+    var isHapticsEnabled: Bool
+    var isLowTimeHapticsEnabled: Bool
     var appThemeColor: ThemeColor
 
     init(
         id: String = "default_settings",
         isStatusBarHidden: Bool = false,
-        isDarkModeEnabled: Bool = false,
         isSoundEnabled: Bool = true,
+        isHapticsEnabled: Bool = true,
+        isLowTimeHapticsEnabled: Bool = true,
         appThemeColor: ThemeColor = .blue
     ) {
         self.id = id
         self.isStatusBarHidden = isStatusBarHidden
-        self.isDarkModeEnabled = isDarkModeEnabled
         self.isSoundEnabled = isSoundEnabled
+        self.isHapticsEnabled = isHapticsEnabled
+        self.isLowTimeHapticsEnabled = isLowTimeHapticsEnabled
         self.appThemeColor = appThemeColor
     }
 }
