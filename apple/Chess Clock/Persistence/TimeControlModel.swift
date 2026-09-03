@@ -5,29 +5,27 @@
 //  Created by Allister Isaiah Harvey on 2026.03.31.
 //
 
-import SwiftData
 import Foundation
+import SwiftData
 
 @Model
 final class TimeControlModel {
 
-    var name: String
-    var systemRaw: String
-    var stagesData: Data
+  var id: UUID
+  var name: String
+  var systemRaw: String
+  var stagesData: Data
 
-    init(name: String, control: TimeControl) {
-        self.name = name
-        self.systemRaw = control.mode.rawValue
-        self.stagesData = try! JSONEncoder().encode(control.stages)
-    }
+  init(id: UUID = UUID(), name: String, control: TimeControl) {
+    self.id = id
+    self.name = name
+    self.systemRaw = control.mode.rawValue
+    self.stagesData = try! JSONEncoder().encode(control.stages)
+  }
 
-    var control: TimeControl {
-        TimeControl(
-            mode: TimingMode(rawValue: systemRaw)!,
-            stages: try! JSONDecoder().decode(
-                [ClockStage].self,
-                from: stagesData
-            )
-        )
-    }
+  var control: TimeControl {
+    let mode = TimingMode(rawValue: systemRaw) ?? .simple
+    let stages = (try? JSONDecoder().decode([ClockStage].self, from: stagesData)) ?? []
+    return TimeControl(mode: mode, stages: stages)
+  }
 }

@@ -11,17 +11,27 @@ import UIKit
 
 enum HapticsManager {
 
-    static func flagFall() {
+    static func flagFall(isEnabled: Bool = true) {
+        guard isEnabled else { return }
 #if os(iOS)
         UINotificationFeedbackGenerator()
             .notificationOccurred(.error)
 #endif
     }
 
-    static func tap() {
+    static func tap(isEnabled: Bool = true) {
+        guard isEnabled else { return }
 #if os(iOS)
         UIImpactFeedbackGenerator(style: .medium)
             .impactOccurred()
+#endif
+    }
+
+    static func lowTimeWarning(isEnabled: Bool = true) {
+        guard isEnabled else { return }
+#if os(iOS)
+        UINotificationFeedbackGenerator()
+            .notificationOccurred(.warning)
 #endif
     }
 }

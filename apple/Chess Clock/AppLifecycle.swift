@@ -9,13 +9,12 @@ import SwiftUI
 import Combine
 
 final class AppLifecycle: ObservableObject {
-    
+
 
     func appMovedToBackground(engine: ClockEngine) {
         engine.pause()
     }
 
     func appReturned(engine: ClockEngine) {
-        // timestamps automatically recover
     }
 }

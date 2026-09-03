@@ -7,7 +7,7 @@
 
 import Foundation
 
-struct ClockStage: Codable {
+struct ClockStage: Hashable, Codable {
 
     var movesRequired: Int?
     var baseTime: TimeInterval
